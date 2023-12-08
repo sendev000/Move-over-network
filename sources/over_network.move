@@ -507,6 +507,7 @@ module overmind::over_network {
         profile_pic: String,
         usernames_to_follow: vector<String>
     ) acquires State, ModuleEventStore {
+        let owner_address = signer::address_of(owner);
         // Check if the username is valid or not.
         
         // Check if the name is valid or not.
@@ -518,7 +519,50 @@ module overmind::over_network {
         // ....
 
         
+        let state_mut = borrow_global_mut<State>(get_resource_account_address());
+        let resource_account = account::create_signer_with_capability(&state_mut.signer_cap);
+        
+        let collection_address = state_mut.account_collection_address;
+        let account_collection_object = object::address_to_object<collection::Collection>(collection_address);
 
+        let token_construction_ref = token::create_named_token(
+            &resource_account,
+            collection::name(account_collection_object),
+            string::utf8(b""),
+            username,
+            option::none(),
+            string::utf8(b""),
+        );
+
+        let account_token_address = object::address_from_constructor_ref(&token_construction_ref);
+        let account_token_signer = object::generate_signer(&token_construction_ref);
+        let account_token_object = object::address_to_object<token::Token>(*&account_token_address);
+
+        object::transfer(&resource_account, account_token_object, owner_address);
+
+        table::add(&mut state_mut.account_registry.accounts, username, account_token_address);
+        
+        move_to(&account_token_signer, AccountMetaData{
+            creation_timestamp:  timestamp::now_seconds(),
+            account_address: account_token_address,
+            username: username,
+            name: name,
+            profile_picture_uri: profile_pic,
+            bio: string::utf8(b""),
+            follower_account_usernames: vector::empty(),
+            following_account_usernames: usernames_to_follow
+        });
+
+        let module_event_store_mut = borrow_global_mut<ModuleEventStore>(get_resource_account_address());
+        event::emit_event<AccountCreatedEvent>(
+            &mut module_event_store_mut.account_created_events,            
+            AccountCreatedEvent {
+                timestamp: timestamp::now_seconds(),
+                account_address: account_token_address,
+                username: username,
+                creator: signer::address_of(owner)
+            }
+        );
     }
 
     // /*
@@ -1051,6 +1095,10 @@ module overmind::over_network {
                 option::is_none(&token::royalty(account_token_object)),
                 0
             );
+            let user_address_1_exp = object::owner(account_token_object);
+            std::debug::print(&user_address_1_exp);
+            std::debug::print(&user_address_1);
+
             assert!(
                 object::is_owner(account_token_object, user_address_1),
                 0
@@ -1073,7 +1121,7 @@ module overmind::over_network {
                 &state.account_registry.accounts,
                 account_username_1
             );
-            let account_meta_data = borrow_global<AccountMetaData>(    );
+            let account_meta_data = borrow_global<AccountMetaData>(account_address);
 
             assert!(
                 account_meta_data.creation_timestamp == timestamp::now_seconds(),
