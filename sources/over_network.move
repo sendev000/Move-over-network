@@ -506,12 +506,12 @@ module overmind::over_network {
         name: String, 
         profile_pic: String,
         usernames_to_follow: vector<String>
-    ) acquires State, ModuleEventStore {
+    ) acquires State, ModuleEventStore, AccountMetaData {
         let owner_address = signer::address_of(owner);
         // Check if the username is valid or not.
-        
+        check_username_is_valid_or_not(username);
         // Check if the name is valid or not.
-
+        
         // Check if the profle pic is valid or not.
 
         // Check if the username is already registered or not.
@@ -933,6 +933,10 @@ module overmind::over_network {
     //==============================================================================================
     // Validation functions
     //==============================================================================================
+    // Check if the username is valid or not.
+    inline fun check_username_is_valid_or_not (username: String) {
+        assert!(!string::is_empty(&username), EUsernameInvalidLength);
+    }
 
     //==============================================================================================
     // Tests - DO NOT MODIFY
@@ -1191,25 +1195,25 @@ module overmind::over_network {
         }
     }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // #[expected_failure(abort_code = EUsernameInvalidLength)]
-    // fun create_account_test_failure_username_too_short(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    #[expected_failure(abort_code = EUsernameInvalidLength)]
+    fun create_account_test_failure_username_too_short(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"");
-    //     create_account(user1, account_username_1, string::utf8(b"dan"), string::utf8(b"me.png"), vector[]);
-    // }
+        let account_username_1 = string::utf8(b"");
+        create_account(user1, account_username_1, string::utf8(b"dan"), string::utf8(b"me.png"), vector[]);
+    }
 
     // #[test(admin = @overmind, user1 = @0xA)]
     // #[expected_failure(abort_code = EUsernameInvalidLength)]
