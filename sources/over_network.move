@@ -563,21 +563,36 @@ module overmind::over_network {
         );
     }
 
-    // /*
-    //     Updates the name of the account associated with the given username. Aborts if the name is 
-    //     not valid length, if the username is not registered, or if the account associated with the 
-    //     username is not owned by the owner account.
-    //     @param owner - The signer representing the owner of the account to update
-    //     @param username - The username of the account to update
-    //     @param name - The new name of the account
-    // */
-    // entry fun update_name(
-    //     owner: &signer,
-    //     username: String,
-    //     name: String
-    // ) acquires State, AccountMetaData {
+    /*
+        Updates the name of the account associated with the given username. Aborts if the name is 
+        not valid length, if the username is not registered, or if the account associated with the 
+        username is not owned by the owner account.
+        @param owner - The signer representing the owner of the account to update
+        @param username - The username of the account to update
+        @param name - The new name of the account
+    */
+    entry fun update_name(
+        owner: &signer,
+        username: String,
+        name: String
+    ) acquires State, AccountMetaData {
+        let owner_address = signer::address_of(owner);
+        
+        // Check if the name is valid or not.
+        check_name_is_valid_or_not(name);
+        
+        //check if the username is not registered.
+        let state_mut = borrow_global_mut<State>(get_resource_account_address());
+        check_username_is_registered_or_not(&state_mut.account_registry.accounts, username);
 
-    // }
+        let account_token_address = table::borrow(&state_mut.account_registry.accounts, username);
+        
+        //check if the account associated with the username is not owned by the owner account is or not.
+        check_owenr_is_owend_or_not(owner_address, *account_token_address);
+        
+        let account_meta_data_mut = borrow_global_mut<AccountMetaData>(*account_token_address);
+        account_meta_data_mut.name = name;
+    }
 
     // /*
     //     Updates the bio of the account associated with the given username. Aborts if the bio is too
@@ -944,6 +959,17 @@ module overmind::over_network {
     // Check if the pic_uri is valid or not.
     inline fun check_pic_uri_is_valid_or_not (pic_uri: String) {
         assert!(string::length(&pic_uri) >= 0 && string::length(&pic_uri) < 20, EProfilePictureUriInvalidLength);
+    }
+
+    //Check if the username is registered or not.
+    inline fun check_username_is_registered_or_not(accounts: &Table<String, address>, username: String) {
+        assert!(table::contains(accounts, username), EUsernameNotRegistered);
+    }
+
+    //Check if the account associated with the username is not owned by the owner account is or not.
+    inline fun check_owenr_is_owend_or_not(owner_address: address, account_token_address: address) {
+        let account_token_object = object::address_to_object<token::Token>(*&account_token_address);
+        assert!(object::is_owner(account_token_object, owner_address), EAccountDoesNotOwnUsername);
     }
 
     //==============================================================================================
@@ -1980,76 +2006,76 @@ module overmind::over_network {
         }
     }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // fun update_name_test_success_update_name_once(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    fun update_name_test_success_update_name_once(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
 
-    //     let name = string::utf8(b"Larry Joe");
-    //     update_name(user1, account_username_1, name);
+        let name = string::utf8(b"Larry Joe");
+        update_name(user1, account_username_1, name);
 
-    //     let expected_resource_account_address = account::create_resource_address(&@overmind, b"decentralized platform");
-    //     let state = borrow_global<State>(expected_resource_account_address);
+        let expected_resource_account_address = account::create_resource_address(&@overmind, b"decentralized platform");
+        let state = borrow_global<State>(expected_resource_account_address);
 
-    //     {
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_1
-    //         );
+        {
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_1
+            );
 
-    //         let account_meta_data = borrow_global_mut<AccountMetaData>(account_address);
-    //         assert!(
-    //             account_meta_data.name == name,
-    //             0
-    //         );
-    //     };
+            let account_meta_data = borrow_global_mut<AccountMetaData>(account_address);
+            assert!(
+                account_meta_data.name == name,
+                0
+            );
+        };
 
-    //     {
-    //         let module_event_store = 
-    //             borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
-    //         assert!(
-    //             event::counter(&module_event_store.account_created_events) == 1,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_follow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unfollow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_post_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_comment_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_like_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unlike_events) == 0,
-    //             0
-    //         );
-    //     }
-    // }
+        {
+            let module_event_store = 
+                borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
+            assert!(
+                event::counter(&module_event_store.account_created_events) == 1,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_follow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unfollow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_post_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_comment_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_like_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unlike_events) == 0,
+                0
+            );
+        }
+    }
 
     // #[test(admin = @overmind, user1 = @0xA)]
     // #[expected_failure(abort_code = ENameInvalidLength, location = Self)]
