@@ -2077,73 +2077,73 @@ module overmind::over_network {
         }
     }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // #[expected_failure(abort_code = ENameInvalidLength, location = Self)]
-    // fun update_name_test_failure_too_long(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    #[expected_failure(abort_code = ENameInvalidLength, location = Self)]
+    fun update_name_test_failure_too_long(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
 
-    //     let name = string::utf8(b"0000000000000000000000000000000000000000000000000000000000000");
-    //     update_name(user1, account_username_1, name);
-    // }
+        let name = string::utf8(b"0000000000000000000000000000000000000000000000000000000000000");
+        update_name(user1, account_username_1, name);
+    }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // #[expected_failure(abort_code = EAccountDoesNotOwnUsername, location = Self)]
-    // fun update_name_test_failure_account_does_not_owner_username(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    #[expected_failure(abort_code = EAccountDoesNotOwnUsername, location = Self)]
+    fun update_name_test_failure_account_does_not_owner_username(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
 
-    //     let name = string::utf8(b"0");
-    //     update_name(admin, account_username_1, name);
-    // }
+        let name = string::utf8(b"0");
+        update_name(admin, account_username_1, name);
+    }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // #[expected_failure(abort_code = EUsernameNotRegistered, location = Self)]
-    // fun update_name_test_failure_username_not_registered(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    #[expected_failure(abort_code = EUsernameNotRegistered, location = Self)]
+    fun update_name_test_failure_username_not_registered(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
 
-    //     let name = string::utf8(b"0");
-    //     update_name(user1, account_username_1, name);
-    // }
+        let name = string::utf8(b"0");
+        update_name(user1, account_username_1, name);
+    }
 
     // #[test(admin = @overmind, user1 = @0xA)]
     // fun update_bio_test_success_update_bio_once(
