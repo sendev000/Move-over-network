@@ -553,12 +553,14 @@ module overmind::over_network {
             following_account_usernames: usernames_to_follow
         });
 
+        let account_meta_data = borrow_global<AccountMetaData>(signer::address_of(&account_token_signer));
+
         let module_event_store_mut = borrow_global_mut<ModuleEventStore>(get_resource_account_address());
         event::emit_event<AccountCreatedEvent>(
             &mut module_event_store_mut.account_created_events,            
             AccountCreatedEvent {
                 timestamp: timestamp::now_seconds(),
-                account_address: account_token_address,
+                account_address: account_meta_data.account_address,
                 username: username,
                 creator: signer::address_of(owner)
             }
@@ -935,7 +937,7 @@ module overmind::over_network {
     //==============================================================================================
     // Check if the username is valid or not.
     inline fun check_username_is_valid_or_not (username: String) {
-        assert!(!string::is_empty(&username), EUsernameInvalidLength);
+        assert!(string::length(&username) > 0 && string::length(&username) < 20, EUsernameInvalidLength);
     }
 
     //==============================================================================================
@@ -1100,8 +1102,6 @@ module overmind::over_network {
                 0
             );
             let user_address_1_exp = object::owner(account_token_object);
-            std::debug::print(&user_address_1_exp);
-            std::debug::print(&user_address_1);
 
             assert!(
                 object::is_owner(account_token_object, user_address_1),
@@ -1215,25 +1215,25 @@ module overmind::over_network {
         create_account(user1, account_username_1, string::utf8(b"dan"), string::utf8(b"me.png"), vector[]);
     }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // #[expected_failure(abort_code = EUsernameInvalidLength)]
-    // fun create_account_test_failure_username_too_long(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    #[expected_failure(abort_code = EUsernameInvalidLength)]
+    fun create_account_test_failure_username_too_long(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"000000000000000000000000000000000");
-    //     create_account(user1, account_username_1, string::utf8(b"dan"), string::utf8(b"me.png"), vector[]);
-    // }
+        let account_username_1 = string::utf8(b"000000000000000000000000000000000");
+        create_account(user1, account_username_1, string::utf8(b"dan"), string::utf8(b"me.png"), vector[]);
+    }
 
     // #[test(admin = @overmind, user1 = @0xA)]
     // #[expected_failure(abort_code = EProfilePictureUriInvalidLength)]
