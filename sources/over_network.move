@@ -514,10 +514,6 @@ module overmind::over_network {
         check_name_is_valid_or_not(name);
         // Check if the profle pic is valid or not.
         check_pic_uri_is_valid_or_not(profile_pic);
-        // Check if the username is already registered or not.
-
-        // ....
-
         
         let state_mut = borrow_global_mut<State>(get_resource_account_address());
         let resource_account = account::create_signer_with_capability(&state_mut.signer_cap);
@@ -942,12 +938,12 @@ module overmind::over_network {
 
     // Check if the name is valid or not.
     inline fun check_name_is_valid_or_not (name: String) {
-        assert!(string::length(&name) > 0 && string::length(&name) < 20, EUsernameInvalidLength);
+        assert!(string::length(&name) >= 0 && string::length(&name) < 20, ENameInvalidLength);
     }
 
     // Check if the pic_uri is valid or not.
     inline fun check_pic_uri_is_valid_or_not (pic_uri: String) {
-        assert!(string::length(&pic_uri) > 0 && string::length(&pic_uri) < 20, EProfilePictureUriInvalidLength);
+        assert!(string::length(&pic_uri) >= 0 && string::length(&pic_uri) < 20, EProfilePictureUriInvalidLength);
     }
 
     //==============================================================================================
@@ -1265,724 +1261,724 @@ module overmind::over_network {
         create_account(user1, account_username_1, string::utf8(b"dan"), profile_pic_uri, vector[]);
     }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // #[expected_failure(abort_code = ENameInvalidLength)]
-    // fun create_account_test_failure_name_invalid_length(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    #[expected_failure(abort_code = ENameInvalidLength)]
+    fun create_account_test_failure_name_invalid_length(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     let name = string::utf8(b"0000000000000000000000000000000000000000000000000000000000000");
-    //     create_account(user1, account_username_1, name, string::utf8(b""), vector[]);
-    // }
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        let name = string::utf8(b"0000000000000000000000000000000000000000000000000000000000000");
+        create_account(user1, account_username_1, name, string::utf8(b""), vector[]);
+    }
 
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // fun create_account_test_success_create_two_accounts(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    fun create_account_test_success_create_two_accounts(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     create_account(user1, account_username_1, string::utf8(b"joe"), string::utf8(b""), vector[]);
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        create_account(user1, account_username_1, string::utf8(b"joe"), string::utf8(b""), vector[]);
 
-    //     let account_username_2 = string::utf8(b"tree hugger 24");
-    //     create_account(user1, account_username_2, string::utf8(b""), string::utf8(b"mysmile.jpeg"), vector[]);
+        let account_username_2 = string::utf8(b"tree hugger 24");
+        create_account(user1, account_username_2, string::utf8(b""), string::utf8(b"mysmile.jpeg"), vector[]);
 
-    //     let expected_resource_account_address = 
-    //         account::create_resource_address(&@overmind, b"decentralized platform");
-    //     let state = borrow_global<State>(expected_resource_account_address);
+        let expected_resource_account_address = 
+            account::create_resource_address(&@overmind, b"decentralized platform");
+        let state = borrow_global<State>(expected_resource_account_address);
         
-    //     /* 
-    //         - Check if the account address is registered correctly in the account registry
-    //         - Check the account collection supply is correct (2)
-    //     */
-    //     {
-    //         assert!(
-    //             table::contains(&state.account_registry.accounts, account_username_1),
-    //             0
-    //         );
+        /* 
+            - Check if the account address is registered correctly in the account registry
+            - Check the account collection supply is correct (2)
+        */
+        {
+            assert!(
+                table::contains(&state.account_registry.accounts, account_username_1),
+                0
+            );
 
-    //         let collection_address = state.account_collection_address;
-    //         let account_collection_object = object::address_to_object<collection::Collection>(
-    //             collection_address
-    //         );
-    //         assert!(
-    //             option::contains(&collection::count<collection::Collection>(account_collection_object), &2),
-    //             0
-    //         );
-    //     };
+            let collection_address = state.account_collection_address;
+            let account_collection_object = object::address_to_object<collection::Collection>(
+                collection_address
+            );
+            assert!(
+                option::contains(&collection::count<collection::Collection>(account_collection_object), &2),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account token address is stored correctly in the account registry
-    //         - Check if the account token is created correctly
-    //             - Check the account token name
-    //             - Check the account token collection name
-    //             - Check the account token description
-    //             - Check the account token uri
-    //             - Check the account token royalty
-    //             - Check the account token owner
-    //     */
-    //     {
-    //         let expected_account_token_address = token::create_token_address(
-    //             &expected_resource_account_address, 
-    //             &string::utf8(b"account collection"), 
-    //             &account_username_1
-    //         );
-    //         assert!(
-    //             table::borrow(&state.account_registry.accounts, account_username_1) == 
-    //                 &expected_account_token_address,
-    //             0
-    //         );
+        /* 
+            - Check if the account token address is stored correctly in the account registry
+            - Check if the account token is created correctly
+                - Check the account token name
+                - Check the account token collection name
+                - Check the account token description
+                - Check the account token uri
+                - Check the account token royalty
+                - Check the account token owner
+        */
+        {
+            let expected_account_token_address = token::create_token_address(
+                &expected_resource_account_address, 
+                &string::utf8(b"account collection"), 
+                &account_username_1
+            );
+            assert!(
+                table::borrow(&state.account_registry.accounts, account_username_1) == 
+                    &expected_account_token_address,
+                0
+            );
 
-    //         let account_token_object = object::address_to_object<token::Token>(
-    //             expected_account_token_address
-    //         );
-    //         assert!(
-    //             token::name(account_token_object) == account_username_1,
-    //             0
-    //         );
-    //         assert!(
-    //             token::collection_name(account_token_object) == string::utf8(b"account collection"),
-    //             0
-    //         );
-    //         assert!(
-    //             token::description(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             token::uri(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             option::is_none(&token::royalty(account_token_object)),
-    //             0
-    //         );
-    //         assert!(
-    //             object::is_owner(account_token_object, user_address_1),
-    //             0
-    //         );
-    //     };
+            let account_token_object = object::address_to_object<token::Token>(
+                expected_account_token_address
+            );
+            assert!(
+                token::name(account_token_object) == account_username_1,
+                0
+            );
+            assert!(
+                token::collection_name(account_token_object) == string::utf8(b"account collection"),
+                0
+            );
+            assert!(
+                token::description(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                token::uri(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                option::is_none(&token::royalty(account_token_object)),
+                0
+            );
+            assert!(
+                object::is_owner(account_token_object, user_address_1),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account metadata is created correctly
-    //             - Check the account metadata creation timestamp
-    //             - Check the account metadata account address
-    //             - Check the account metadata username
-    //             - Check the account metadata profile picture uri
-    //             - Check the account metadata bio
-    //             - Check the account metadata follower token addresses
-    //             - Check the account metadata following token addresses
-    //             - Check the account metadata follower collection address
+        /* 
+            - Check if the account metadata is created correctly
+                - Check the account metadata creation timestamp
+                - Check the account metadata account address
+                - Check the account metadata username
+                - Check the account metadata profile picture uri
+                - Check the account metadata bio
+                - Check the account metadata follower token addresses
+                - Check the account metadata following token addresses
+                - Check the account metadata follower collection address
 
-    //         - Check the account's follow collection
-    //             - Check the account metadata follower collection creator
-    //             - Check the account metadata follower collection description
-    //             - Check the account metadata follower collection name
-    //             - Check the account metadata follower collection uri
-    //             - Check the account metadata follower collection supply
-    //     */
-    //     {
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_1
-    //         );
-    //         let account_meta_data = borrow_global<AccountMetaData>(account_address);
+            - Check the account's follow collection
+                - Check the account metadata follower collection creator
+                - Check the account metadata follower collection description
+                - Check the account metadata follower collection name
+                - Check the account metadata follower collection uri
+                - Check the account metadata follower collection supply
+        */
+        {
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_1
+            );
+            let account_meta_data = borrow_global<AccountMetaData>(account_address);
 
-    //         assert!(
-    //             account_meta_data.creation_timestamp == timestamp::now_seconds(),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.account_address == account_address,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.username == account_username_1,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.name == string::utf8(b"joe"),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.profile_picture_uri == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.bio == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.follower_account_usernames) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.following_account_usernames) == 0,
-    //             0
-    //         );
-    //     };
+            assert!(
+                account_meta_data.creation_timestamp == timestamp::now_seconds(),
+                0
+            );
+            assert!(
+                account_meta_data.account_address == account_address,
+                0
+            );
+            assert!(
+                account_meta_data.username == account_username_1,
+                0
+            );
+            assert!(
+                account_meta_data.name == string::utf8(b"joe"),
+                0
+            );
+            assert!(
+                account_meta_data.profile_picture_uri == string::utf8(b""),
+                0
+            );
+            assert!(
+                account_meta_data.bio == string::utf8(b""),
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.follower_account_usernames) == 0,
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.following_account_usernames) == 0,
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account token address is stored correctly in the account registry
-    //         - Check if the account token is created correctly
-    //             - Check the account token name
-    //             - Check the account token collection name
-    //             - Check the account token description
-    //             - Check the account token uri
-    //             - Check the account token royalty
-    //             - Check the account token owner
-    //     */
-    //     {
-    //         let expected_account_token_address = token::create_token_address(
-    //             &expected_resource_account_address, 
-    //             &string::utf8(b"account collection"), 
-    //             &account_username_2
-    //         );
-    //         assert!(
-    //             table::borrow(&state.account_registry.accounts, account_username_2) == 
-    //                 &expected_account_token_address,
-    //             0
-    //         );
+        /* 
+            - Check if the account token address is stored correctly in the account registry
+            - Check if the account token is created correctly
+                - Check the account token name
+                - Check the account token collection name
+                - Check the account token description
+                - Check the account token uri
+                - Check the account token royalty
+                - Check the account token owner
+        */
+        {
+            let expected_account_token_address = token::create_token_address(
+                &expected_resource_account_address, 
+                &string::utf8(b"account collection"), 
+                &account_username_2
+            );
+            assert!(
+                table::borrow(&state.account_registry.accounts, account_username_2) == 
+                    &expected_account_token_address,
+                0
+            );
 
-    //         let account_token_object = object::address_to_object<token::Token>(
-    //             expected_account_token_address
-    //         );
-    //         assert!(
-    //             token::name(account_token_object) == account_username_2,
-    //             0
-    //         );
-    //         assert!(
-    //             token::collection_name(account_token_object) == string::utf8(b"account collection"),
-    //             0
-    //         );
-    //         assert!(
-    //             token::description(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             token::uri(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             option::is_none(&token::royalty(account_token_object)),
-    //             0
-    //         );
-    //         assert!(
-    //             object::is_owner(account_token_object, user_address_1),
-    //             0
-    //         );
-    //     };
+            let account_token_object = object::address_to_object<token::Token>(
+                expected_account_token_address
+            );
+            assert!(
+                token::name(account_token_object) == account_username_2,
+                0
+            );
+            assert!(
+                token::collection_name(account_token_object) == string::utf8(b"account collection"),
+                0
+            );
+            assert!(
+                token::description(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                token::uri(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                option::is_none(&token::royalty(account_token_object)),
+                0
+            );
+            assert!(
+                object::is_owner(account_token_object, user_address_1),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account metadata is created correctly
-    //             - Check the account metadata creation timestamp
-    //             - Check the account metadata account address
-    //             - Check the account metadata username
-    //             - Check the account metadata profile picture uri
-    //             - Check the account metadata bio
-    //             - Check the account metadata follower token addresses
-    //             - Check the account metadata following token addresses
-    //             - Check the account metadata follower collection address
+        /* 
+            - Check if the account metadata is created correctly
+                - Check the account metadata creation timestamp
+                - Check the account metadata account address
+                - Check the account metadata username
+                - Check the account metadata profile picture uri
+                - Check the account metadata bio
+                - Check the account metadata follower token addresses
+                - Check the account metadata following token addresses
+                - Check the account metadata follower collection address
 
-    //         - Check the account's follow collection
-    //             - Check the account metadata follower collection creator
-    //             - Check the account metadata follower collection description
-    //             - Check the account metadata follower collection name
-    //             - Check the account metadata follower collection uri
-    //             - Check the account metadata follower collection supply
-    //     */
-    //     {
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_2
-    //         );
-    //         let account_meta_data = borrow_global<AccountMetaData>(account_address);
+            - Check the account's follow collection
+                - Check the account metadata follower collection creator
+                - Check the account metadata follower collection description
+                - Check the account metadata follower collection name
+                - Check the account metadata follower collection uri
+                - Check the account metadata follower collection supply
+        */
+        {
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_2
+            );
+            let account_meta_data = borrow_global<AccountMetaData>(account_address);
 
-    //         assert!(
-    //             account_meta_data.creation_timestamp == timestamp::now_seconds(),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.account_address == account_address,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.username == account_username_2,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.name == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.profile_picture_uri == string::utf8(b"mysmile.jpeg"),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.bio == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.follower_account_usernames) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.following_account_usernames) == 0,
-    //             0
-    //         );
-    //     };
+            assert!(
+                account_meta_data.creation_timestamp == timestamp::now_seconds(),
+                0
+            );
+            assert!(
+                account_meta_data.account_address == account_address,
+                0
+            );
+            assert!(
+                account_meta_data.username == account_username_2,
+                0
+            );
+            assert!(
+                account_meta_data.name == string::utf8(b""),
+                0
+            );
+            assert!(
+                account_meta_data.profile_picture_uri == string::utf8(b"mysmile.jpeg"),
+                0
+            );
+            assert!(
+                account_meta_data.bio == string::utf8(b""),
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.follower_account_usernames) == 0,
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.following_account_usernames) == 0,
+                0
+            );
+        };
 
-    //     {
-    //         let module_event_store = 
-    //             borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
-    //         assert!(
-    //             event::counter(&module_event_store.account_created_events) == 2,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_follow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unfollow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_post_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_comment_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_like_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unlike_events) == 0,
-    //             0
-    //         );
-    //     }
-    // }
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // fun create_account_test_success_create_many_accounts(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, AccountMetaData {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+        {
+            let module_event_store = 
+                borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
+            assert!(
+                event::counter(&module_event_store.account_created_events) == 2,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_follow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unfollow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_post_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_comment_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_like_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unlike_events) == 0,
+                0
+            );
+        }
+    }
+    #[test(admin = @overmind, user1 = @0xA)]
+    fun create_account_test_success_create_many_accounts(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, AccountMetaData {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
 
-    //     let account_username_2 = string::utf8(b"tree hugger 24");
-    //     create_account(user1, account_username_2, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_2 = string::utf8(b"tree hugger 24");
+        create_account(user1, account_username_2, string::utf8(b""), string::utf8(b""), vector[]);
         
-    //     let account_username_3 = string::utf8(b"john");
-    //     create_account(user1, account_username_3, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_3 = string::utf8(b"john");
+        create_account(user1, account_username_3, string::utf8(b""), string::utf8(b""), vector[]);
 
-    //     let expected_resource_account_address = 
-    //         account::create_resource_address(&@overmind, b"decentralized platform");
-    //     let state = borrow_global<State>(expected_resource_account_address);
+        let expected_resource_account_address = 
+            account::create_resource_address(&@overmind, b"decentralized platform");
+        let state = borrow_global<State>(expected_resource_account_address);
         
-    //     /* 
-    //         - Check if the account address is registered correctly in the account registry
-    //         - Check the account collection supply is correct (3)
-    //     */
-    //     {
-    //         assert!(
-    //             table::contains(&state.account_registry.accounts, account_username_1),
-    //             0
-    //         );
+        /* 
+            - Check if the account address is registered correctly in the account registry
+            - Check the account collection supply is correct (3)
+        */
+        {
+            assert!(
+                table::contains(&state.account_registry.accounts, account_username_1),
+                0
+            );
 
-    //         let collection_address = state.account_collection_address;
-    //         let account_collection_object = object::address_to_object<collection::Collection>(
-    //             collection_address
-    //         );
-    //         assert!(
-    //             option::contains(&collection::count<collection::Collection>(account_collection_object), &3),
-    //             0
-    //         );
-    //     };
+            let collection_address = state.account_collection_address;
+            let account_collection_object = object::address_to_object<collection::Collection>(
+                collection_address
+            );
+            assert!(
+                option::contains(&collection::count<collection::Collection>(account_collection_object), &3),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account token address is stored correctly in the account registry
-    //         - Check if the account token is created correctly
-    //             - Check the account token name
-    //             - Check the account token collection name
-    //             - Check the account token description
-    //             - Check the account token uri
-    //             - Check the account token royalty
-    //             - Check the account token owner
-    //     */
-    //     {
-    //         let expected_account_token_address = token::create_token_address(
-    //             &expected_resource_account_address, 
-    //             &string::utf8(b"account collection"), 
-    //             &account_username_1
-    //         );
-    //         assert!(
-    //             table::borrow(&state.account_registry.accounts, account_username_1) == 
-    //                 &expected_account_token_address,
-    //             0
-    //         );
+        /* 
+            - Check if the account token address is stored correctly in the account registry
+            - Check if the account token is created correctly
+                - Check the account token name
+                - Check the account token collection name
+                - Check the account token description
+                - Check the account token uri
+                - Check the account token royalty
+                - Check the account token owner
+        */
+        {
+            let expected_account_token_address = token::create_token_address(
+                &expected_resource_account_address, 
+                &string::utf8(b"account collection"), 
+                &account_username_1
+            );
+            assert!(
+                table::borrow(&state.account_registry.accounts, account_username_1) == 
+                    &expected_account_token_address,
+                0
+            );
 
-    //         let account_token_object = object::address_to_object<token::Token>(
-    //             expected_account_token_address
-    //         );
-    //         assert!(
-    //             token::name(account_token_object) == account_username_1,
-    //             0
-    //         );
-    //         assert!(
-    //             token::collection_name(account_token_object) == string::utf8(b"account collection"),
-    //             0
-    //         );
-    //         assert!(
-    //             token::description(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             token::uri(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             option::is_none(&token::royalty(account_token_object)),
-    //             0
-    //         );
-    //         assert!(
-    //             object::is_owner(account_token_object, user_address_1),
-    //             0
-    //         );
-    //     };
+            let account_token_object = object::address_to_object<token::Token>(
+                expected_account_token_address
+            );
+            assert!(
+                token::name(account_token_object) == account_username_1,
+                0
+            );
+            assert!(
+                token::collection_name(account_token_object) == string::utf8(b"account collection"),
+                0
+            );
+            assert!(
+                token::description(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                token::uri(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                option::is_none(&token::royalty(account_token_object)),
+                0
+            );
+            assert!(
+                object::is_owner(account_token_object, user_address_1),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account metadata is created correctly
-    //             - Check the account metadata creation timestamp
-    //             - Check the account metadata account address
-    //             - Check the account metadata username
-    //             - Check the account metadata profile picture uri
-    //             - Check the account metadata bio
-    //             - Check the account metadata follower token addresses
-    //             - Check the account metadata following token addresses
-    //             - Check the account metadata follower collection address
+        /* 
+            - Check if the account metadata is created correctly
+                - Check the account metadata creation timestamp
+                - Check the account metadata account address
+                - Check the account metadata username
+                - Check the account metadata profile picture uri
+                - Check the account metadata bio
+                - Check the account metadata follower token addresses
+                - Check the account metadata following token addresses
+                - Check the account metadata follower collection address
 
-    //         - Check the account's follow collection
-    //             - Check the account metadata follower collection creator
-    //             - Check the account metadata follower collection description
-    //             - Check the account metadata follower collection name
-    //             - Check the account metadata follower collection uri
-    //             - Check the account metadata follower collection supply
-    //     */
-    //     {
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_1
-    //         );
-    //         let account_meta_data = borrow_global<AccountMetaData>(account_address);
+            - Check the account's follow collection
+                - Check the account metadata follower collection creator
+                - Check the account metadata follower collection description
+                - Check the account metadata follower collection name
+                - Check the account metadata follower collection uri
+                - Check the account metadata follower collection supply
+        */
+        {
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_1
+            );
+            let account_meta_data = borrow_global<AccountMetaData>(account_address);
 
-    //         assert!(
-    //             account_meta_data.creation_timestamp == timestamp::now_seconds(),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.account_address == account_address,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.username == account_username_1,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.profile_picture_uri == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.bio == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.follower_account_usernames) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.following_account_usernames) == 0,
-    //             0
-    //         );
-    //     };
+            assert!(
+                account_meta_data.creation_timestamp == timestamp::now_seconds(),
+                0
+            );
+            assert!(
+                account_meta_data.account_address == account_address,
+                0
+            );
+            assert!(
+                account_meta_data.username == account_username_1,
+                0
+            );
+            assert!(
+                account_meta_data.profile_picture_uri == string::utf8(b""),
+                0
+            );
+            assert!(
+                account_meta_data.bio == string::utf8(b""),
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.follower_account_usernames) == 0,
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.following_account_usernames) == 0,
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account token address is stored correctly in the account registry
-    //         - Check if the account token is created correctly
-    //             - Check the account token name
-    //             - Check the account token collection name
-    //             - Check the account token description
-    //             - Check the account token uri
-    //             - Check the account token royalty
-    //             - Check the account token owner
-    //     */
-    //     {
-    //         let expected_account_token_address = token::create_token_address(
-    //             &expected_resource_account_address, 
-    //             &string::utf8(b"account collection"), 
-    //             &account_username_2
-    //         );
-    //         assert!(
-    //             table::borrow(&state.account_registry.accounts, account_username_2) == 
-    //                 &expected_account_token_address,
-    //             0
-    //         );
+        /* 
+            - Check if the account token address is stored correctly in the account registry
+            - Check if the account token is created correctly
+                - Check the account token name
+                - Check the account token collection name
+                - Check the account token description
+                - Check the account token uri
+                - Check the account token royalty
+                - Check the account token owner
+        */
+        {
+            let expected_account_token_address = token::create_token_address(
+                &expected_resource_account_address, 
+                &string::utf8(b"account collection"), 
+                &account_username_2
+            );
+            assert!(
+                table::borrow(&state.account_registry.accounts, account_username_2) == 
+                    &expected_account_token_address,
+                0
+            );
 
-    //         let account_token_object = object::address_to_object<token::Token>(
-    //             expected_account_token_address
-    //         );
-    //         assert!(
-    //             token::name(account_token_object) == account_username_2,
-    //             0
-    //         );
-    //         assert!(
-    //             token::collection_name(account_token_object) == string::utf8(b"account collection"),
-    //             0
-    //         );
-    //         assert!(
-    //             token::description(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             token::uri(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             option::is_none(&token::royalty(account_token_object)),
-    //             0
-    //         );
-    //         assert!(
-    //             object::is_owner(account_token_object, user_address_1),
-    //             0
-    //         );
-    //     };
+            let account_token_object = object::address_to_object<token::Token>(
+                expected_account_token_address
+            );
+            assert!(
+                token::name(account_token_object) == account_username_2,
+                0
+            );
+            assert!(
+                token::collection_name(account_token_object) == string::utf8(b"account collection"),
+                0
+            );
+            assert!(
+                token::description(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                token::uri(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                option::is_none(&token::royalty(account_token_object)),
+                0
+            );
+            assert!(
+                object::is_owner(account_token_object, user_address_1),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account metadata is created correctly
-    //             - Check the account metadata creation timestamp
-    //             - Check the account metadata account address
-    //             - Check the account metadata username
-    //             - Check the account metadata profile picture uri
-    //             - Check the account metadata bio
-    //             - Check the account metadata follower token addresses
-    //             - Check the account metadata following token addresses
-    //             - Check the account metadata follower collection address
+        /* 
+            - Check if the account metadata is created correctly
+                - Check the account metadata creation timestamp
+                - Check the account metadata account address
+                - Check the account metadata username
+                - Check the account metadata profile picture uri
+                - Check the account metadata bio
+                - Check the account metadata follower token addresses
+                - Check the account metadata following token addresses
+                - Check the account metadata follower collection address
 
-    //         - Check the account's follow collection
-    //             - Check the account metadata follower collection creator
-    //             - Check the account metadata follower collection description
-    //             - Check the account metadata follower collection name
-    //             - Check the account metadata follower collection uri
-    //             - Check the account metadata follower collection supply
-    //     */
-    //     {
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_2
-    //         );
-    //         let account_meta_data = borrow_global<AccountMetaData>(account_address);
+            - Check the account's follow collection
+                - Check the account metadata follower collection creator
+                - Check the account metadata follower collection description
+                - Check the account metadata follower collection name
+                - Check the account metadata follower collection uri
+                - Check the account metadata follower collection supply
+        */
+        {
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_2
+            );
+            let account_meta_data = borrow_global<AccountMetaData>(account_address);
 
-    //         assert!(
-    //             account_meta_data.creation_timestamp == timestamp::now_seconds(),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.account_address == account_address,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.username == account_username_2,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.profile_picture_uri == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.bio == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.follower_account_usernames) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.following_account_usernames) == 0,
-    //             0
-    //         );
-    //     };
+            assert!(
+                account_meta_data.creation_timestamp == timestamp::now_seconds(),
+                0
+            );
+            assert!(
+                account_meta_data.account_address == account_address,
+                0
+            );
+            assert!(
+                account_meta_data.username == account_username_2,
+                0
+            );
+            assert!(
+                account_meta_data.profile_picture_uri == string::utf8(b""),
+                0
+            );
+            assert!(
+                account_meta_data.bio == string::utf8(b""),
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.follower_account_usernames) == 0,
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.following_account_usernames) == 0,
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account token address is stored correctly in the account registry
-    //         - Check if the account token is created correctly
-    //             - Check the account token name
-    //             - Check the account token collection name
-    //             - Check the account token description
-    //             - Check the account token uri
-    //             - Check the account token royalty
-    //             - Check the account token owner
-    //     */
-    //     {
-    //         let expected_account_token_address = token::create_token_address(
-    //             &expected_resource_account_address, 
-    //             &string::utf8(b"account collection"), 
-    //             &account_username_3
-    //         );
-    //         assert!(
-    //             table::borrow(&state.account_registry.accounts, account_username_3) == 
-    //                 &expected_account_token_address,
-    //             0
-    //         );
+        /* 
+            - Check if the account token address is stored correctly in the account registry
+            - Check if the account token is created correctly
+                - Check the account token name
+                - Check the account token collection name
+                - Check the account token description
+                - Check the account token uri
+                - Check the account token royalty
+                - Check the account token owner
+        */
+        {
+            let expected_account_token_address = token::create_token_address(
+                &expected_resource_account_address, 
+                &string::utf8(b"account collection"), 
+                &account_username_3
+            );
+            assert!(
+                table::borrow(&state.account_registry.accounts, account_username_3) == 
+                    &expected_account_token_address,
+                0
+            );
 
-    //         let account_token_object = object::address_to_object<token::Token>(
-    //             expected_account_token_address
-    //         );
-    //         assert!(
-    //             token::name(account_token_object) == account_username_3,
-    //             0
-    //         );
-    //         assert!(
-    //             token::collection_name(account_token_object) == string::utf8(b"account collection"),
-    //             0
-    //         );
-    //         assert!(
-    //             token::description(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             token::uri(account_token_object) == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             option::is_none(&token::royalty(account_token_object)),
-    //             0
-    //         );
-    //         assert!(
-    //             object::is_owner(account_token_object, user_address_1),
-    //             0
-    //         );
-    //     };
+            let account_token_object = object::address_to_object<token::Token>(
+                expected_account_token_address
+            );
+            assert!(
+                token::name(account_token_object) == account_username_3,
+                0
+            );
+            assert!(
+                token::collection_name(account_token_object) == string::utf8(b"account collection"),
+                0
+            );
+            assert!(
+                token::description(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                token::uri(account_token_object) == string::utf8(b""),
+                0
+            );
+            assert!(
+                option::is_none(&token::royalty(account_token_object)),
+                0
+            );
+            assert!(
+                object::is_owner(account_token_object, user_address_1),
+                0
+            );
+        };
 
-    //     /* 
-    //         - Check if the account metadata is created correctly
-    //             - Check the account metadata creation timestamp
-    //             - Check the account metadata account address
-    //             - Check the account metadata username
-    //             - Check the account metadata profile picture uri
-    //             - Check the account metadata bio
-    //             - Check the account metadata follower token addresses
-    //             - Check the account metadata following token addresses
-    //             - Check the account metadata follower collection address
+        /* 
+            - Check if the account metadata is created correctly
+                - Check the account metadata creation timestamp
+                - Check the account metadata account address
+                - Check the account metadata username
+                - Check the account metadata profile picture uri
+                - Check the account metadata bio
+                - Check the account metadata follower token addresses
+                - Check the account metadata following token addresses
+                - Check the account metadata follower collection address
 
-    //         - Check the account's follow collection
-    //             - Check the account metadata follower collection creator
-    //             - Check the account metadata follower collection description
-    //             - Check the account metadata follower collection name
-    //             - Check the account metadata follower collection uri
-    //             - Check the account metadata follower collection supply
-    //     */
-    //     {
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_3
-    //         );
-    //         let account_meta_data = borrow_global<AccountMetaData>(account_address);
+            - Check the account's follow collection
+                - Check the account metadata follower collection creator
+                - Check the account metadata follower collection description
+                - Check the account metadata follower collection name
+                - Check the account metadata follower collection uri
+                - Check the account metadata follower collection supply
+        */
+        {
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_3
+            );
+            let account_meta_data = borrow_global<AccountMetaData>(account_address);
 
-    //         assert!(
-    //             account_meta_data.creation_timestamp == timestamp::now_seconds(),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.account_address == account_address,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.username == account_username_3,
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.profile_picture_uri == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             account_meta_data.bio == string::utf8(b""),
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.follower_account_usernames) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&account_meta_data.following_account_usernames) == 0,
-    //             0
-    //         );
-    //     };
+            assert!(
+                account_meta_data.creation_timestamp == timestamp::now_seconds(),
+                0
+            );
+            assert!(
+                account_meta_data.account_address == account_address,
+                0
+            );
+            assert!(
+                account_meta_data.username == account_username_3,
+                0
+            );
+            assert!(
+                account_meta_data.profile_picture_uri == string::utf8(b""),
+                0
+            );
+            assert!(
+                account_meta_data.bio == string::utf8(b""),
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.follower_account_usernames) == 0,
+                0
+            );
+            assert!(
+                vector::length(&account_meta_data.following_account_usernames) == 0,
+                0
+            );
+        };
 
-    //     {
-    //         let module_event_store = 
-    //             borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
-    //         assert!(
-    //             event::counter(&module_event_store.account_created_events) == 3,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_follow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unfollow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_post_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_comment_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_like_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unlike_events) == 0,
-    //             0
-    //         );
-    //     }
-    // }
+        {
+            let module_event_store = 
+                borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
+            assert!(
+                event::counter(&module_event_store.account_created_events) == 3,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_follow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unfollow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_post_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_comment_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_like_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unlike_events) == 0,
+                0
+            );
+        }
+    }
 
     // #[test(admin = @overmind, user1 = @0xA)]
     // fun update_name_test_success_update_name_once(
