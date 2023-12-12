@@ -690,21 +690,30 @@ module overmind::over_network {
 
     // }
 
-    // /*
-    //     Posts a new post with the given content to the account associated with the given username.
-    //     Aborts if the username is not registered, if the account associated with the username is
-    //     not owned by the owner account, or if the content is not valid length.
-    //     @param owner - The signer representing the owner of the account to post with
-    //     @param username - The username of the account to post with
-    //     @param content - The content of the post
-    // */
-    // entry fun post(
-    //     owner: &signer, 
-    //     username: String, 
-    //     content: String, 
-    // ) acquires State, ModuleEventStore, Publications, GlobalTimeline {
+    /*
+        Posts a new post with the given content to the account associated with the given username.
+        Aborts if the username is not registered, if the account associated with the username is
+        not owned by the owner account, or if the content is not valid length.
+        @param owner - The signer representing the owner of the account to post with
+        @param username - The username of the account to post with
+        @param content - The content of the post
+    */
+    entry fun post(
+        owner: &signer, 
+        username: String, 
+        content: String, 
+    ) acquires State, ModuleEventStore, Publications, GlobalTimeline {
+        let owner_address = signer::address_of(owner);
 
-    // }
+        let state_mut = borrow_global_mut<State>(get_resource_account_address());
+        let account_token_address = *table::borrow(
+                &state_mut.account_registry.accounts,
+                account_username_1
+            );
+        
+        let account_token_signer = object::
+        move_to()
+    }
 
     // /*  
     //     Comments on the post associated with the given username and id with the given content. 
@@ -2563,98 +2572,98 @@ module overmind::over_network {
         update_profile_picture(user1, account_username_1, profile_pic_uri);
     }
     
-    // #[test(admin = @overmind, user1 = @0xA)]
-    // fun post_test_success_one_post(
-    //     admin: &signer,
-    //     user1: &signer
-    // ) acquires State, ModuleEventStore, Publications, AccountMetaData, GlobalTimeline {
-    //     let admin_address = signer::address_of(admin);
-    //     let user_address_1 = signer::address_of(user1);
-    //     account::create_account_for_test(admin_address);
-    //     account::create_account_for_test(user_address_1);
+    #[test(admin = @overmind, user1 = @0xA)]
+    fun post_test_success_one_post(
+        admin: &signer,
+        user1: &signer
+    ) acquires State, ModuleEventStore, Publications, AccountMetaData, GlobalTimeline {
+        let admin_address = signer::address_of(admin);
+        let user_address_1 = signer::address_of(user1);
+        account::create_account_for_test(admin_address);
+        account::create_account_for_test(user_address_1);
 
-    //     let aptos_framework = account::create_account_for_test(@aptos_framework);
-    //     timestamp::set_time_has_started_for_testing(&aptos_framework);
+        let aptos_framework = account::create_account_for_test(@aptos_framework);
+        timestamp::set_time_has_started_for_testing(&aptos_framework);
 
-    //     init_module(admin);
+        init_module(admin);
 
-    //     let account_username_1 = string::utf8(b"mind_slayer_3000");
-    //     create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
+        let account_username_1 = string::utf8(b"mind_slayer_3000");
+        create_account(user1, account_username_1, string::utf8(b""), string::utf8(b""), vector[]);
 
-    //     {
-    //         let post_content = string::utf8(b"myopinion.kahm");
-    //         post(user1, account_username_1, post_content);
+        {
+            let post_content = string::utf8(b"myopinion.kahm");
+            post(user1, account_username_1, post_content);
 
-    //         let expected_resource_account_address = account::create_resource_address(&@overmind, b"decentralized platform");
-    //         let state = borrow_global<State>(expected_resource_account_address);
-    //         let account_address = *table::borrow(
-    //             &state.account_registry.accounts,
-    //             account_username_1
-    //         );
+            let expected_resource_account_address = account::create_resource_address(&@overmind, b"decentralized platform");
+            let state = borrow_global<State>(expected_resource_account_address);
+            let account_address = *table::borrow(
+                &state.account_registry.accounts,
+                account_username_1
+            );
 
-    //         let publications = borrow_global<Publications>(account_address);
-    //         let posts = &publications.posts;
-    //         assert!(
-    //             vector::length(posts) == 1,
-    //             0
-    //         );
+            let publications = borrow_global<Publications>(account_address);
+            let posts = &publications.posts;
+            assert!(
+                vector::length(posts) == 1,
+                0
+            );
 
-    //         let post = vector::borrow(posts, 0);
-    //         assert!(
-    //             post.timestamp == timestamp::now_seconds(),
-    //             0
-    //         );
-    //         assert!(
-    //             post.id == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             post.content == post_content,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&post.comments) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             vector::length(&post.likes) == 0,
-    //             0
-    //         );
-    //     };
+            let post = vector::borrow(posts, 0);
+            assert!(
+                post.timestamp == timestamp::now_seconds(),
+                0
+            );
+            assert!(
+                post.id == 0,
+                0
+            );
+            assert!(
+                post.content == post_content,
+                0
+            );
+            assert!(
+                vector::length(&post.comments) == 0,
+                0
+            );
+            assert!(
+                vector::length(&post.likes) == 0,
+                0
+            );
+        };
 
-    //     {
-    //         let module_event_store = 
-    //             borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
-    //         assert!(
-    //             event::counter(&module_event_store.account_created_events) == 1,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_follow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unfollow_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_post_events) == 1,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_comment_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_like_events) == 0,
-    //             0
-    //         );
-    //         assert!(
-    //             event::counter(&module_event_store.account_unlike_events) == 0,
-    //             0
-    //         );
-    //     }
-    // }
+        {
+            let module_event_store = 
+                borrow_global_mut<ModuleEventStore>(account::create_resource_address(&@overmind, SEED));
+            assert!(
+                event::counter(&module_event_store.account_created_events) == 1,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_follow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unfollow_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_post_events) == 1,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_comment_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_like_events) == 0,
+                0
+            );
+            assert!(
+                event::counter(&module_event_store.account_unlike_events) == 0,
+                0
+            );
+        }
+    }
 
     // #[test(admin = @overmind, user1 = @0xA)]
     // fun post_test_success_many_posts(
