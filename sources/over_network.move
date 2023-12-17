@@ -549,6 +549,12 @@ module overmind::over_network {
             following_account_usernames: usernames_to_follow
         });
 
+        move_to(&account_token_signer, Publications {
+            posts: vector::empty<Post>,
+            comments: vector::empty<Comment>,
+            likes: vector::empty<Like>
+        });
+
         let account_meta_data = borrow_global<AccountMetaData>(signer::address_of(&account_token_signer));
 
         let module_event_store_mut = borrow_global_mut<ModuleEventStore>(get_resource_account_address());
@@ -708,11 +714,14 @@ module overmind::over_network {
         let state_mut = borrow_global_mut<State>(get_resource_account_address());
         let account_token_address = *table::borrow(
                 &state_mut.account_registry.accounts,
-                account_username_1
+                username
             );
-        
-        let account_token_signer = object::
-        move_to()
+        let publications_mut = borrow_global_mut<Publications>(account_token_address);
+        let new_post = Post {
+            timestamp: time_stamp::now_seconds(),
+            id: 
+        }
+        vector::add<Post>(&mut publications_mut, )
     }
 
     // /*  
